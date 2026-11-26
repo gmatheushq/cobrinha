@@ -1,0 +1,34 @@
+[
+  {
+    "versao": "1",
+    "criado": "2026-11-26T23:08Z",
+    "partidas": 10,
+    "registros": 1528,
+    "validacao": {
+      "aprovado": true,
+      "partidas": 10,
+      "jogadas": 1509,
+      "jogadas_treino": 1382,
+      "jogadas_validacao": 127,
+      "partidas_validacao": 2,
+      "classes": [
+        "Direita",
+        "Esquerda",
+        "Frente"
+      ],
+      "novo": {
+        "acuracia": 0.3937007874015748,
+        "f1_macro": 0.37076855511638124
+      },
+      "atual": {
+        "acuracia": 0.3228346456692913,
+        "f1_macro": 0.3204538733526197
+      },
+      "criterios": {
+        "f1_minimo": 0.25,
+        "tolerancia_f1": 0.02,
+        "tolerancia_acuracia": 0.03
+      }
+    }
+  }
+]
