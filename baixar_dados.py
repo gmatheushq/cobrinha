@@ -73,7 +73,7 @@ def main(min_pontuacao=0, min_passos=5):
             raise SystemExit(f"Servidor recusou o download (HTTP {erro.code}). Confira o EXPORT_TOKEN.")
 
         for partida in lote["partidas"]:
-            caminho = os.path.join(PASTA_DADOS, f"dados_web_{partida['id'][:8]}.csv")
+            caminho = os.path.join(PASTA_DADOS, f"dados_web_{partida['id']}.csv")
 
             if os.path.exists(caminho):
                 ja_existiam += 1
