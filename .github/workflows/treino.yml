@@ -38,7 +38,10 @@ jobs:
           git config user.name "treino-coletivo"
           git config user.email "treino-coletivo@users.noreply.github.com"
 
-          git add docs/modelo.json modelos/ relatorio_treino.json
+          git add docs/modelo.json modelos/
+          if [ -f relatorio_treino.json ]; then
+            git add relatorio_treino.json
+          fi
 
           if git diff --cached --quiet; then
             echo "Nenhuma alteração para publicar."

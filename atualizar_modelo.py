@@ -106,10 +106,11 @@ def main():
     print(f"Registros: {registros}")
 
     if partidas < 10 or registros < 500:
-        raise RuntimeError(
-            "Dados insuficientes. São necessárias pelo menos "
-            "10 partidas humanas e 500 jogadas. Modelo atual preservado."
+        print(
+            "Treinamento ignorado: são necessárias pelo menos 10 partidas "
+            "humanas e 500 jogadas. Modelo atual preservado."
         )
+        return
 
     PASTA_MODELOS.mkdir(parents=True, exist_ok=True)
 
