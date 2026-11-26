@@ -137,6 +137,29 @@ let acumulado = 0;
 let tempoJogo = 0;
 let rodadasIA = 0;
 let reinicioIA = 0;
+// Histórico temporário das pontuações da IA
+let historicoIA = [];
+
+function atualizarHistoricoIA() {
+  const elemento = $("historico-ia");
+
+  if (!historicoIA.length) {
+    elemento.hidden = true;
+    elemento.textContent = "";
+    return;
+  }
+
+  elemento.hidden = false;
+
+  const ultimas = historicoIA.slice(-6).reverse();
+
+  elemento.textContent =
+    "HISTÓRICO IA: " +
+    ultimas.map((p, i) => {
+      const rodada = historicoIA.length - i;
+      return `#${rodada}: ${p} pts`;
+    }).join(" | ");
+}
 let dispositivo = "teclado";
 
 function montarPayload(resultado) {
@@ -234,9 +257,19 @@ function terminar() {
       $("f-nota").textContent = "Suas jogadas ajudam a treinar a IA.";
       $("fim").hidden = false;
     }, 600);
-  } else {
+    } else {
+    // Registra a pontuação da rodada encerrada
+    historicoIA.push(est.pontuacao);
+  
+    atualizarHistoricoIA();
+  
     reinicioIA = 0;
-    dica(est.venceu ? "IA VENCEU!" : `IA perdeu! Pontuação: ${est.pontuacao}`);
+  
+    dica(
+      est.venceu
+        ? `IA VENCEU! Pontuação: ${est.pontuacao}`
+        : `IA perdeu! Pontuação: ${est.pontuacao}`
+    );
   }
 }
 
@@ -338,7 +371,10 @@ addEventListener("keydown", (e) => {
 // MENUS
 // ==================================================
 function sair() {
+  
   estado = "parado"; tela = "MENU"; modo = null; est = null;
+  historicoIA = [];
+  atualizarHistoricoIA();
   dica(""); $("sair").hidden = true; $("info").textContent = ""; $("pont").textContent = "Pontuação: 0";
   $("menu").hidden = false; $("fim").hidden = true;
   ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -372,6 +408,11 @@ if (matchMedia("(pointer: coarse)").matches) dispositivo = "toque";
 else $("m-dica").textContent = "Use as setas ou WASD. Na tela de toque, é só deslizar o dedo.";
 
 if ("serviceWorker" in navigator) navigator.serviceWorker.register("sw.js").catch(() => {});
+
+// Link direto: ?modo=humano ou ?modo=ia pula o menu (usado pelo README do perfil).
+const modoDoLink = new URLSearchParams(location.search).get("modo");
+if (modoDoLink === "humano") iniciar("HUMANO");
+else if (modoDoLink === "ia") $("b-ia").click();
 
 enviarFila(); // reenvia partidas que ficaram pendentes
 requestAnimationFrame(quadro);

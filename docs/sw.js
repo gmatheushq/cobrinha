@@ -1,5 +1,5 @@
 // PWA: abre rapido e funciona offline (o envio de partidas usa a fila local do jogo).
-const CACHE = "cobrinha-v1";
+const CACHE = "cobrinha-v2";
 const BASE = ["./", "index.html", "jogo.js", "nucleo.js", "manifest.webmanifest", "icon.svg", "icon-192.png", "icon-512.png"];
 
 self.addEventListener("install", (e) => {
@@ -25,7 +25,7 @@ self.addEventListener("fetch", (e) => {
   }
   // Resto: cache imediato e atualizacao em segundo plano.
   e.respondWith(
-    caches.match(e.request).then((hit) => {
+    caches.match(e.request, { ignoreSearch: true }).then((hit) => {
       const rede = fetch(e.request).then((r) => {
         if (r.ok) { const c = r.clone(); caches.open(CACHE).then((x) => x.put(e.request, c)); }
         return r;

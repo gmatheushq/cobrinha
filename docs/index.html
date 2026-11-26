@@ -13,6 +13,14 @@
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Cobrinha">
 <style>
+  #historico-ia {
+    margin-top: 5px;
+    font-size: 11px;
+    opacity: .85;
+    max-width: 65vw;
+    line-height: 1.5;
+    overflow-wrap: anywhere;
+  }
   :root { --verde:#009600; --cinza:#282828; --azul:#0064ff; --amarelo:#ffdc00; }
   * { box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
   html, body { margin:0; position:fixed; inset:0; overflow:hidden; overscroll-behavior:none;
@@ -51,7 +59,11 @@
 <body>
 <div id="app">
   <div id="hud">
-    <div><b id="pont">Pontuação: 0</b><div id="info"></div></div>
+    <div>
+      <b id="pont">Pontuação: 0</b>
+      <div id="info"></div>
+      <div id="historico-ia" hidden></div>
+    </div>
     <div style="display:flex;align-items:center;gap:10px">
       <span id="status" aria-live="polite"></span>
       <button id="sair" hidden>SAIR</button>
@@ -65,6 +77,14 @@
   <p class="sub">Quem vai jogar?</p>
   <button id="b-humano" class="grande verde">JOGAR COMO HUMANO</button>
   <button id="b-ia" class="grande azul">JOGAR COM A IA</button>
+  <button id="b-arvore" class="grande cinza">
+  ACESSAR ÁRVORE DE DECISÃO
+  </button>
+  <script>
+  document.getElementById('b-arvore').onclick = () => {
+    window.location.href = 'arvore.html';
+  };
+</script>
   <p class="peq" id="m-dica">Deslize o dedo na tela para virar a cobra. No computador: setas ou WASD.</p>
   <p class="peq">Suas jogadas são salvas de forma anônima (sem login e sem dados pessoais) para treinar a IA.</p>
 </section>
