@@ -137,6 +137,29 @@ let acumulado = 0;
 let tempoJogo = 0;
 let rodadasIA = 0;
 let reinicioIA = 0;
+// Histórico temporário das pontuações da IA
+let historicoIA = [];
+
+function atualizarHistoricoIA() {
+  const elemento = $("historico-ia");
+
+  if (!historicoIA.length) {
+    elemento.hidden = true;
+    elemento.textContent = "";
+    return;
+  }
+
+  elemento.hidden = false;
+
+  const ultimas = historicoIA.slice(-6).reverse();
+
+  elemento.textContent =
+    "HISTÓRICO IA: " +
+    ultimas.map((p, i) => {
+      const rodada = historicoIA.length - i;
+      return `#${rodada}: ${p} pts`;
+    }).join(" | ");
+}
 let dispositivo = "teclado";
 
 function montarPayload(resultado) {
