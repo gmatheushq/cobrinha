@@ -20,6 +20,7 @@ const inteiro = (v, min, max) => Number.isInteger(v) && v >= min && v <= max;
 export function validarFormato(p) {
   if (!p || typeof p !== "object") return "corpo invalido";
   if (p.v !== 1) return "versao desconhecida";
+  if (p.modo !== "humano") return "modo invalido";
   if (typeof p.id !== "string" || !UUID.test(p.id)) return "id invalido";
   if (typeof p.jogador !== "string" || !UUID.test(p.jogador)) return "jogador invalido";
   if (!TABULEIROS.some(([c, l]) => c === p.cols && l === p.linhas)) return "tabuleiro invalido";
@@ -80,8 +81,8 @@ export async function onRequestPost({ request, env }) {
 
   await env.DB.batch([
     env.DB.prepare(
-      "INSERT OR IGNORE INTO partidas (id, jogador, criado_em, cols, linhas, resultado, pontuacao, passos_n, tempo_ms, dispositivo, passos) VALUES (?,?,?,?,?,?,?,?,?,?,?)",
-    ).bind(p.id, p.jogador, agora, p.cols, p.linhas, p.resultado, p.pontuacao, p.passos.length, p.tempo_ms, p.dispositivo, JSON.stringify(p.passos)),
+      "INSERT OR IGNORE INTO partidas (id, jogador, criado_em, cols, linhas, resultado, pontuacao, passos_n, tempo_ms, dispositivo, passos, modo) VALUES (?,?,?,?,?,?,?,?,?,?,?,?)",
+    ).bind(p.id, p.jogador, agora, p.cols, p.linhas, p.resultado, p.pontuacao, p.passos.length, p.tempo_ms, p.dispositivo, JSON.stringify(p.passos), p.modo),
     env.DB.prepare("INSERT INTO limite (ip_hash, ts) VALUES (?, ?)").bind(ipHash, agora),
   ]);
 

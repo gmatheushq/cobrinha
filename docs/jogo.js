@@ -164,7 +164,7 @@ let dispositivo = "teclado";
 
 function montarPayload(resultado) {
   return {
-    v: 1, id: partida.id, jogador, cols: est.cols, linhas: est.linhas, resultado,
+    v: 1, modo: "humano", id: partida.id, jogador, cols: est.cols, linhas: est.linhas, resultado,
     pontuacao: est.pontuacao, tempo_ms: Math.round(tempoJogo),
     dispositivo: partida.dispositivo, passos: partida.passos,
   };
@@ -265,6 +265,11 @@ function terminar() {
   
     reinicioIA = 0;
   
+
+    atualizarHistoricoIA();
+
+    reinicioIA = 0;
+
     dica(
       est.venceu
         ? `IA VENCEU! Pontuação: ${est.pontuacao}`
@@ -372,6 +377,7 @@ addEventListener("keydown", (e) => {
 // ==================================================
 function sair() {
   
+
   estado = "parado"; tela = "MENU"; modo = null; est = null;
   historicoIA = [];
   atualizarHistoricoIA();

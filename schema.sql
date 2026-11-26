@@ -12,6 +12,7 @@ CREATE TABLE IF NOT EXISTS partidas (
   passos_n   INTEGER NOT NULL CHECK (passos_n >= 1),
   tempo_ms   INTEGER NOT NULL CHECK (tempo_ms >= 0),  -- tempo de sobrevivencia
   dispositivo TEXT NOT NULL CHECK (dispositivo IN ('toque','teclado')),
+  modo       TEXT NOT NULL DEFAULT 'humano' CHECK (modo IN ('humano','ia')),
   passos     TEXT NOT NULL              -- JSON [[dx,dy,decisao],...]; o resto e recalculado por replay
 );
 CREATE INDEX IF NOT EXISTS idx_partidas_jogador ON partidas (jogador, criado_em);

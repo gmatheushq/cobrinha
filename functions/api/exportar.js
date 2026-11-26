@@ -29,7 +29,7 @@ export async function onRequestGet({ request, env }) {
   const { results } = await env.DB.prepare(
     `SELECT rowid AS rid, id, cols, linhas, resultado, pontuacao, passos
        FROM partidas
-      WHERE rowid > ? AND resultado != 'abandonada' AND passos_n >= ? AND pontuacao >= ?
+      WHERE rowid > ? AND modo = 'humano' AND resultado != 'abandonada' AND passos_n >= ? AND pontuacao >= ?
       ORDER BY rowid LIMIT ?`,
   ).bind(apos, minPassos, minPontuacao, limite).all();
 

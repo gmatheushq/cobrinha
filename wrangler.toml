@@ -5,4 +5,4 @@ pages_build_output_dir = "docs"
 [[d1_databases]]
 binding = "DB"
 database_name = "cobrinha"
-database_id = "COLE_AQUI_O_ID_DO_D1"   # sai de: npx wrangler d1 create cobrinha
+database_id = "a3f2404f-d403-4e83-8592-92c1cdd9d280"
