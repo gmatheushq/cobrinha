@@ -371,7 +371,10 @@ addEventListener("keydown", (e) => {
 // MENUS
 // ==================================================
 function sair() {
+  
   estado = "parado"; tela = "MENU"; modo = null; est = null;
+  historicoIA = [];
+  atualizarHistoricoIA();
   dica(""); $("sair").hidden = true; $("info").textContent = ""; $("pont").textContent = "Pontuação: 0";
   $("menu").hidden = false; $("fim").hidden = true;
   ctx.clearRect(0, 0, canvas.width, canvas.height);
