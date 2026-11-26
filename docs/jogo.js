@@ -257,9 +257,19 @@ function terminar() {
       $("f-nota").textContent = "Suas jogadas ajudam a treinar a IA.";
       $("fim").hidden = false;
     }, 600);
-  } else {
+    } else {
+    // Registra a pontuação da rodada encerrada
+    historicoIA.push(est.pontuacao);
+  
+    atualizarHistoricoIA();
+  
     reinicioIA = 0;
-    dica(est.venceu ? "IA VENCEU!" : `IA perdeu! Pontuação: ${est.pontuacao}`);
+  
+    dica(
+      est.venceu
+        ? `IA VENCEU! Pontuação: ${est.pontuacao}`
+        : `IA perdeu! Pontuação: ${est.pontuacao}`
+    );
   }
 }
 
