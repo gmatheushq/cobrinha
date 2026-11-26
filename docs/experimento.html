@@ -1,0 +1,614 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#080d0b">
+  <title>Snake Lab | Cobrinha AI</title>
+
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700;800;900&family=Inter:wght@400;500;600;700;800&display=swap');
+
+    :root {
+      color-scheme: dark;
+      --bg: #080d0b;
+      --panel: #101914;
+      --panel2: #141f18;
+      --line: #26382b;
+      --muted: #829487;
+      --text: #eaf4ec;
+      --lime: #a3e635;
+      --green: #4ade80;
+      --blue: #60a5fa;
+      --red: #fb7185;
+      --gold: #facc15;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      padding: 30px;
+      min-height: 100vh;
+      color: var(--text);
+      background:
+        radial-gradient(ellipse at 50% -20%, #243b25 0%, transparent 48%),
+        linear-gradient(145deg, #080d0b, #0b120e 55%, #080d0b);
+      font-family: Inter, system-ui, sans-serif;
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      opacity: .12;
+      background-image: radial-gradient(#a3e635 0.7px, transparent 0.7px);
+      background-size: 24px 24px;
+      z-index: -1;
+    }
+
+    main {
+      max-width: 1500px;
+      margin: auto;
+    }
+
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 20px;
+      flex-wrap: wrap;
+      margin-bottom: 28px;
+    }
+
+    .marca {
+      display: flex;
+      align-items: center;
+      gap: 13px;
+      margin-bottom: 10px;
+    }
+
+    .logo {
+      width: 43px;
+      height: 43px;
+      display: grid;
+      place-items: center;
+      border-radius: 13px;
+      background: var(--lime);
+      color: #14200e;
+      font-size: 25px;
+      font-weight: 900;
+      box-shadow: 0 0 25px #a3e63530;
+    }
+
+    .marca-texto {
+      font-size: 11px;
+      letter-spacing: 3px;
+      color: var(--lime);
+      font-weight: 800;
+    }
+
+    h1 {
+      font-family: "Barlow Condensed", sans-serif;
+      font-size: clamp(36px, 5vw, 58px);
+      line-height: .98;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      margin: 0;
+      font-weight: 900;
+    }
+
+    h1 span { color: var(--lime); }
+
+    h2 {
+      font-family: "Barlow Condensed", sans-serif;
+      font-size: 23px;
+      letter-spacing: .6px;
+      margin: 0;
+      text-transform: uppercase;
+    }
+
+    p {
+      color: var(--muted);
+      line-height: 1.65;
+      font-size: 13px;
+    }
+
+    header p {
+      margin: 10px 0 0;
+      font-size: 13px;
+    }
+
+    button, a {
+      color: inherit;
+      text-decoration: none;
+    }
+
+    button {
+      cursor: pointer;
+      border: 1px solid var(--line);
+      border-radius: 9px;
+      background: #1b2a20;
+      padding: 12px 17px;
+      font-size: 11px;
+      font-weight: 800;
+      letter-spacing: 1px;
+      transition: .2s ease;
+    }
+
+    button:hover {
+      transform: translateY(-2px);
+      border-color: var(--lime);
+      filter: brightness(1.15);
+    }
+
+    button:disabled {
+      opacity: .5;
+      cursor: wait;
+      transform: none;
+    }
+
+    .voltar {
+      background: transparent;
+      border-color: #344638;
+      color: #b8cbb9;
+    }
+
+    .painel {
+      background: linear-gradient(145deg, #121d16, #0e1712);
+      border: 1px solid var(--line);
+      border-radius: 15px;
+      padding: 21px;
+      margin-bottom: 20px;
+      box-shadow: 0 12px 35px #00000025;
+    }
+
+    .controles {
+      display: flex;
+      align-items: center;
+      gap: 25px;
+      flex-wrap: wrap;
+    }
+
+    .velocidade {
+      flex: 1;
+      min-width: 230px;
+      max-width: 450px;
+    }
+
+    .velocidade strong {
+      font-size: 12px;
+    }
+
+    #valor-velocidade {
+      color: var(--lime);
+      font-size: 15px;
+    }
+
+    input[type="range"] {
+      width: 100%;
+      accent-color: var(--lime);
+      margin: 14px 0 7px;
+      cursor: pointer;
+    }
+
+    .escala {
+      display: flex;
+      justify-content: space-between;
+      color: var(--muted);
+      font-size: 10px;
+    }
+
+    .acoes {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .primario {
+      background: var(--lime);
+      border-color: var(--lime);
+      color: #17220f;
+    }
+
+    .primario:hover {
+      background: #bef264;
+      color: #17220f;
+    }
+
+    #mensagem {
+      margin: 17px 0 0;
+      padding-top: 14px;
+      border-top: 1px solid #26382b;
+      color: var(--lime);
+      font-size: 11px;
+      letter-spacing: .4px;
+    }
+
+    .secao-titulo {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      margin: 30px 0 15px;
+    }
+
+    .secao-titulo span {
+      color: var(--muted);
+      font-size: 10px;
+      letter-spacing: 1.5px;
+      font-weight: 700;
+    }
+
+    .grade {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 17px;
+    }
+
+    .modelo {
+      min-width: 0;
+      background: linear-gradient(160deg, #152119, #0e1712);
+      border: 1px solid var(--line);
+      border-radius: 15px;
+      padding: 15px;
+      box-shadow: 0 15px 40px #00000030;
+      transition: border-color .2s, transform .2s;
+    }
+
+    .modelo:hover {
+      border-color: #526b45;
+      transform: translateY(-3px);
+    }
+
+    .modelo-topo {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 6px;
+    }
+
+    .numero-modelo {
+      font-family: "Barlow Condensed", sans-serif;
+      font-size: 13px;
+      color: var(--muted);
+      letter-spacing: 1px;
+    }
+
+    .indicador {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 9px;
+      font-weight: 800;
+      letter-spacing: 1px;
+      color: var(--green);
+      border: 1px solid #34523b;
+      background: #17291c;
+      border-radius: 20px;
+      padding: 5px 9px;
+    }
+
+    .indicador::before {
+      content: "";
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: currentColor;
+      box-shadow: 0 0 8px currentColor;
+    }
+
+    .modelo h2 {
+      font-size: 25px;
+      margin: 0;
+    }
+
+    .modelo.atual h2 { color: var(--blue); }
+    .modelo.vencedor h2 { color: var(--lime); }
+    .modelo.perdedor h2 { color: var(--red); }
+
+    .descricao {
+      color: var(--muted);
+      font-size: 10px;
+      min-height: 30px;
+      margin: 7px 0 13px;
+    }
+
+    .canvas-wrap {
+      position: relative;
+      padding: 7px;
+      border: 1px solid #2a3b2e;
+      background: #070d09;
+      border-radius: 10px;
+      overflow: hidden;
+    }
+
+    .canvas-wrap::before {
+      content: "LIVE SIMULATION";
+      position: absolute;
+      top: 13px;
+      left: 15px;
+      z-index: 1;
+      font-size: 8px;
+      font-weight: 800;
+      letter-spacing: 1.5px;
+      color: #8da28e;
+      pointer-events: none;
+    }
+
+    .modelo canvas {
+      width: 100%;
+      display: block;
+      aspect-ratio: 4 / 3;
+      background-color: #0a130d;
+      border-radius: 5px;
+    }
+
+    .status {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+      margin: 13px 0;
+      padding-bottom: 12px;
+      border-bottom: 1px solid #26382b;
+      font-size: 10px;
+      color: var(--muted);
+    }
+
+    .estado {
+      color: var(--green);
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: .6px;
+    }
+
+    .estado.morto { color: var(--red); }
+
+    .metricas {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+    }
+
+    .metrica {
+      background: #0b130e;
+      border: 1px solid #26382b;
+      padding: 11px 5px;
+      border-radius: 9px;
+      text-align: center;
+    }
+
+    .numero {
+      font-family: "Barlow Condensed", sans-serif;
+      font-size: 29px;
+      font-weight: 800;
+      line-height: 1;
+      color: var(--text);
+    }
+
+    .legenda {
+      color: var(--muted);
+      font-size: 8px;
+      letter-spacing: 1px;
+      font-weight: 800;
+      margin-top: 6px;
+    }
+
+    .chart-wrap { margin-top: 24px; }
+
+    .chart-cabecalho {
+      display: flex;
+      justify-content: space-between;
+      gap: 15px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    .chart-tag {
+      color: var(--lime);
+      border: 1px solid #40552e;
+      background: #1c2a16;
+      border-radius: 6px;
+      padding: 6px 9px;
+      font-size: 9px;
+      font-weight: 800;
+      letter-spacing: 1px;
+    }
+
+    #grafico {
+      width: 100%;
+      height: 250px;
+      display: block;
+      margin-top: 10px;
+    }
+
+    .explicacao {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 25px;
+    }
+
+    .explicacao p { font-size: 12px; }
+
+    .aviso {
+      border-left: 3px solid var(--gold);
+      padding-left: 13px;
+      color: #c6b98c;
+    }
+
+    .rodape {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      flex-wrap: wrap;
+      font-size: 9px;
+      color: #637468;
+      letter-spacing: 1px;
+      margin-top: 28px;
+      padding: 15px 2px;
+      border-top: 1px solid #26382b;
+    }
+
+    @media (max-width: 1000px) {
+      .grade { grid-template-columns: 1fr; }
+      .modelo { max-width: 700px; width: 100%; margin: auto; }
+      .explicacao { grid-template-columns: 1fr; gap: 5px; }
+    }
+
+    @media (max-width: 550px) {
+      body { padding: 15px; }
+      .painel { padding: 15px; }
+      .modelo { padding: 12px; }
+      .acoes { width: 100%; }
+      .acoes button { flex: 1; }
+      .secao-titulo { align-items: flex-start; flex-direction: column; }
+      .rodape { flex-direction: column; }
+    }
+  </style>
+</head>
+
+<body>
+<main>
+  <header>
+    <div>
+      <div class="marca">
+        <div class="logo">S</div>
+        <div class="marca-texto">COBRINHA AI / LABORATÓRIO</div>
+      </div>
+      <h1>Snake <span>Intelligence</span></h1>
+      <p>Ambiente experimental para comparação de inteligência artificial.</p>
+    </div>
+    <a href="index.html"><button class="voltar">← VOLTAR AO JOGO</button></a>
+  </header>
+
+  <section class="painel">
+    <div class="controles">
+      <div class="velocidade">
+        <div style="display:flex;justify-content:space-between;gap:10px">
+          <strong>VELOCIDADE DA SIMULAÇÃO</strong>
+          <strong id="valor-velocidade">1x</strong>
+        </div>
+        <input id="velocidade" type="range" min="1" max="10" value="1">
+        <div class="escala">
+          <span>1x</span><span>5x</span><span>10x</span>
+        </div>
+      </div>
+
+      <div class="acoes">
+        <button id="pausar">Ⅱ &nbsp; PAUSAR</button>
+        <button id="reiniciar" class="primario">↻ &nbsp; REINICIAR TODAS</button>
+      </div>
+    </div>
+    <p id="mensagem">Inicializando modelos...</p>
+  </section>
+
+  <div class="secao-titulo">
+    <h2>Campo de simulação</h2>
+    <span>03 AGENTES / EXECUÇÃO EM PARALELO</span>
+  </div>
+
+  <section class="grade">
+    <article class="modelo atual">
+      <div class="modelo-topo">
+        <span class="numero-modelo">AGENTE 01</span>
+        <span class="indicador">REFERÊNCIA</span>
+      </div>
+      <h2>Modelo atual</h2>
+      <div class="descricao">Modelo original utilizado pelo jogo.</div>
+      <div class="canvas-wrap">
+        <canvas id="tela-atual" width="800" height="600"></canvas>
+      </div>
+      <div class="status">
+        <span>ESTADO DA PARTIDA</span>
+        <span class="estado" id="estado-atual">Carregando</span>
+      </div>
+      <div class="metricas">
+        <div class="metrica"><div class="numero" id="frutas-atual">0</div><div class="legenda">FRUTAS</div></div>
+        <div class="metrica"><div class="numero" id="movimentos-atual">0</div><div class="legenda">MOVIMENTOS</div></div>
+        <div class="metrica"><div class="numero" id="tamanho-atual">1</div><div class="legenda">TAMANHO</div></div>
+      </div>
+    </article>
+
+    <article class="modelo vencedor">
+      <div class="modelo-topo">
+        <span class="numero-modelo">AGENTE 02</span>
+        <span class="indicador">DESEMPENHO ALVO</span>
+      </div>
+      <h2>Modelo vencedor</h2>
+      <div class="descricao">Estratégia de busca com caminhos seguros.</div>
+      <div class="canvas-wrap">
+        <canvas id="tela-vencedor" width="800" height="600"></canvas>
+      </div>
+      <div class="status">
+        <span>ESTADO DA PARTIDA</span>
+        <span class="estado" id="estado-vencedor">Carregando</span>
+      </div>
+      <div class="metricas">
+        <div class="metrica"><div class="numero" id="frutas-vencedor">0</div><div class="legenda">FRUTAS</div></div>
+        <div class="metrica"><div class="numero" id="movimentos-vencedor">0</div><div class="legenda">MOVIMENTOS</div></div>
+        <div class="metrica"><div class="numero" id="tamanho-vencedor">1</div><div class="legenda">TAMANHO</div></div>
+      </div>
+    </article>
+
+    <article class="modelo perdedor">
+      <div class="modelo-topo">
+        <span class="numero-modelo">AGENTE 03</span>
+        <span class="indicador" style="color:var(--red);border-color:#61313b;background:#2a171b">CONTROLE</span>
+      </div>
+      <h2>Modelo perdedor</h2>
+      <div class="descricao">Modelo treinado com exemplos de derrotas.</div>
+      <div class="canvas-wrap">
+        <canvas id="tela-perdedor" width="800" height="600"></canvas>
+      </div>
+      <div class="status">
+        <span>ESTADO DA PARTIDA</span>
+        <span class="estado" id="estado-perdedor">Carregando</span>
+      </div>
+      <div class="metricas">
+        <div class="metrica"><div class="numero" id="frutas-perdedor">0</div><div class="legenda">FRUTAS</div></div>
+        <div class="metrica"><div class="numero" id="movimentos-perdedor">0</div><div class="legenda">MOVIMENTOS</div></div>
+        <div class="metrica"><div class="numero" id="tamanho-perdedor">1</div><div class="legenda">TAMANHO</div></div>
+      </div>
+    </article>
+  </section>
+
+  <section class="painel chart-wrap">
+    <div class="chart-cabecalho">
+      <div>
+        <h2>Comparação de desempenho</h2>
+        <p>Quantidade de frutas comidas por cada modelo nesta execução.</p>
+      </div>
+      <span class="chart-tag">MÉTRICA / PONTUAÇÃO</span>
+    </div>
+    <canvas id="grafico" width="1100" height="250"></canvas>
+  </section>
+
+  <section class="painel">
+    <h2>Metodologia do experimento</h2>
+    <div class="explicacao">
+      <p>
+        Os três modelos recebem as mesmas variáveis de entrada e utilizam as mesmas
+        regras do jogo. Cada um controla sua própria partida. A comparação considera
+        frutas comidas, movimentos realizados e sobrevivência.
+      </p>
+      <p class="aviso">
+        Importante: as bases de vencedores e perdedores foram geradas artificialmente.
+        O resultado desta simulação compara esses modelos neste ambiente, mas não
+        demonstra, por si só, capacidade de generalização para situações reais.
+        O modelo atual é usado como referência.
+      </p>
+    </div>
+  </section>
+
+  <footer class="rodape">
+    <span>COBRINHA AI · SNAKE INTELLIGENCE LAB</span>
+    <span>EXPERIMENTO COMPARATIVO · 200 ÁRVORES DE DECISÃO</span>
+  </footer>
+</main>
+
+<script type="module" src="experimento.js"></script>
+</body>
+</html>

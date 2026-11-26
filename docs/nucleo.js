@@ -219,7 +219,359 @@ export function absolutoDe(acao, nomeDirecao) {
   return nomeDirecao;
 }
 
+const CACHE_CICLOS_HAMILTONIANOS = new Map();
+
+function obterCicloHamiltoniano(cols, linhas) {
+  const chave = `${cols}x${linhas}`;
+
+  if (CACHE_CICLOS_HAMILTONIANOS.has(chave)) {
+    return CACHE_CICLOS_HAMILTONIANOS.get(chave);
+  }
+
+  if (cols < 2 || linhas < 2 || cols % 2 !== 0) {
+    throw new Error(
+      `Ciclo Hamiltoniano não implementado para ${cols}x${linhas}`
+    );
+  }
+
+  const caminho = [];
+
+  // Primeira linha: esquerda para direita.
+  for (let x = 0; x < cols; x++) {
+    caminho.push([x, 0]);
+  }
+
+  // Demais linhas, alternando o sentido.
+  for (let y = 1; y < linhas; y++) {
+    if (y % 2 === 1) {
+      for (let x = cols - 1; x >= 1; x--) {
+        caminho.push([x, y]);
+      }
+    } else {
+      for (let x = 1; x < cols; x++) {
+        caminho.push([x, y]);
+      }
+    }
+  }
+
+  // Fecha o ciclo pela primeira coluna.
+  caminho.push([0, linhas - 1]);
+
+  for (let y = linhas - 2; y >= 1; y--) {
+    caminho.push([0, y]);
+  }
+
+  if (caminho.length !== cols * linhas) {
+    throw new Error("Ciclo Hamiltoniano com quantidade incorreta de casas");
+  }
+
+  const inicio = [
+    Math.floor(cols / 2),
+    Math.floor(linhas / 2)
+  ];
+
+  const rotacionar = (lista, indice) =>
+    lista.slice(indice).concat(lista.slice(0, indice));
+
+  let indice = caminho.findIndex(
+    ([x, y]) => x === inicio[0] && y === inicio[1]
+  );
+
+  if (indice < 0) {
+    throw new Error("Posição inicial não encontrada no ciclo");
+  }
+
+  let ordenado = rotacionar(caminho, indice);
+
+  // A cobra começa olhando para a direita.
+  // O primeiro movimento do ciclo também deve ser para a direita.
+  if (
+    ordenado[1][0] !== inicio[0] + 1 ||
+    ordenado[1][1] !== inicio[1]
+  ) {
+    ordenado = caminho.slice().reverse();
+    indice = ordenado.findIndex(
+      ([x, y]) => x === inicio[0] && y === inicio[1]
+    );
+    ordenado = rotacionar(ordenado, indice);
+  }
+
+  if (
+    ordenado[1][0] !== inicio[0] + 1 ||
+    ordenado[1][1] !== inicio[1]
+  ) {
+    throw new Error("Não foi possível orientar o ciclo para a direita");
+  }
+
+  const proximos = new Map();
+
+  for (let i = 0; i < ordenado.length; i++) {
+    const atual = ordenado[i];
+    const proxima = ordenado[(i + 1) % ordenado.length];
+
+    proximos.set(`${atual[0]},${atual[1]}`, proxima);
+  }
+
+  CACHE_CICLOS_HAMILTONIANOS.set(chave, proximos);
+  return proximos;
+}
+
+
+// Busca um caminho entre a cabeça e um alvo, evitando o corpo.
+// A cauda é considerada transitável porque normalmente se movimenta.
+function buscarCaminho(est, corpo, alvo) {
+  if (!corpo.length || !alvo) return null;
+
+  const chave = ([x, y]) => `${x},${y}`;
+  const inicio = corpo[0];
+  const destino = chave(alvo);
+
+  if (chave(inicio) === destino) return [];
+
+  const bloqueadas = new Set(
+    corpo.slice(1, -1).map(chave)
+  );
+
+  const fila = [inicio];
+  const visitadas = new Set([chave(inicio)]);
+  const anterior = new Map();
+
+  const movimentos = [
+    [1, 0], [-1, 0], [0, 1], [0, -1]
+  ];
+
+  let encontrou = false;
+
+  for (let i = 0; i < fila.length; i++) {
+    const atual = fila[i];
+
+    for (const [dx, dy] of movimentos) {
+      const proxima = [atual[0] + dx, atual[1] + dy];
+      const k = chave(proxima);
+
+      if (
+        proxima[0] < 0 || proxima[0] >= est.cols ||
+        proxima[1] < 0 || proxima[1] >= est.linhas ||
+        visitadas.has(k) ||
+        (bloqueadas.has(k) && k !== destino)
+      ) {
+        continue;
+      }
+
+      visitadas.add(k);
+      anterior.set(k, chave(atual));
+
+      if (k === destino) {
+        encontrou = true;
+        break;
+      }
+
+      fila.push(proxima);
+    }
+
+    if (encontrou) break;
+  }
+
+  if (!encontrou) return null;
+
+  const caminho = [];
+  let atual = destino;
+
+  while (atual !== chave(inicio)) {
+    const [x, y] = atual.split(",").map(Number);
+    caminho.push([x, y]);
+    atual = anterior.get(atual);
+  }
+
+  caminho.reverse();
+  return caminho;
+}
+
+// Simula um caminho até a fruta e verifica se a cobra ainda
+// consegue alcançar a cauda depois de comer.
+function caminhoAteFrutaSeguro(est, caminho) {
+  if (!caminho || caminho.length === 0) return false;
+
+  const corpo = est.cobra.map(p => [...p]);
+  const fruta = est.fruta;
+
+  for (const proxima of caminho) {
+    const comeu =
+      fruta &&
+      proxima[0] === fruta[0] &&
+      proxima[1] === fruta[1];
+
+    const limite = comeu ? corpo.length : corpo.length - 1;
+
+    for (let i = 0; i < limite; i++) {
+      if (
+        corpo[i][0] === proxima[0] &&
+        corpo[i][1] === proxima[1]
+      ) {
+        return false;
+      }
+    }
+
+    corpo.unshift([...proxima]);
+
+    if (!comeu) corpo.pop();
+  }
+
+  const cauda = corpo[corpo.length - 1];
+  const estadoSimulado = {
+    cols: est.cols,
+    linhas: est.linhas
+  };
+
+  return buscarCaminho(estadoSimulado, corpo, cauda) !== null;
+}
+
+// Mede quantas casas livres continuam acessíveis.
+function medirEspaco(corpo, cols, linhas) {
+  const chave = ([x, y]) => `${x},${y}`;
+  const bloqueadas = new Set(corpo.slice(1).map(chave));
+  const fila = [corpo[0]];
+  const visitadas = new Set([chave(corpo[0])]);
+
+  const movimentos = [
+    [1, 0], [-1, 0], [0, 1], [0, -1]
+  ];
+
+  for (let i = 0; i < fila.length; i++) {
+    const [x, y] = fila[i];
+
+    for (const [dx, dy] of movimentos) {
+      const proxima = [x + dx, y + dy];
+      const k = chave(proxima);
+
+      if (
+        proxima[0] < 0 || proxima[0] >= cols ||
+        proxima[1] < 0 || proxima[1] >= linhas ||
+        visitadas.has(k) ||
+        bloqueadas.has(k)
+      ) {
+        continue;
+      }
+
+      visitadas.add(k);
+      fila.push(proxima);
+    }
+  }
+
+  return visitadas.size;
+}
+
+// Estratégia do vencedor: buscar fruta, preservar espaço e
+// usar a cauda como destino alternativo quando necessário.
+function decidirVencedorSeguro(est) {
+  const corpo = est.cobra;
+  const cabeca = corpo[0];
+
+  if (est.fruta) {
+    const caminhoFruta = buscarCaminho(
+      est, corpo, est.fruta
+    );
+
+    if (
+      caminhoFruta &&
+      caminhoAteFrutaSeguro(est, caminhoFruta)
+    ) {
+      const p = caminhoFruta[0];
+      return nomeDe([p[0] - cabeca[0], p[1] - cabeca[1]]);
+    }
+  }
+
+  // Se não houver caminho seguro até a fruta, tenta acompanhar a cauda.
+  const cauda = corpo[corpo.length - 1];
+  const caminhoCauda = buscarCaminho(est, corpo, cauda);
+
+  if (caminhoCauda && caminhoCauda.length > 0) {
+    const p = caminhoCauda[0];
+    return nomeDe([p[0] - cabeca[0], p[1] - cabeca[1]]);
+  }
+
+  // Último recurso: escolher a jogada legal que deixa mais espaço.
+  const movimentos = [
+    [1, 0], [-1, 0], [0, 1], [0, -1]
+  ];
+
+  let melhor = null;
+  let melhorEspaco = -1;
+  let melhorDistancia = Infinity;
+
+  for (const [dx, dy] of movimentos) {
+    const proxima = [cabeca[0] + dx, cabeca[1] + dy];
+
+    if (
+      proxima[0] < 0 || proxima[0] >= est.cols ||
+      proxima[1] < 0 || proxima[1] >= est.linhas
+    ) {
+      continue;
+    }
+
+    const comeu =
+      est.fruta &&
+      proxima[0] === est.fruta[0] &&
+      proxima[1] === est.fruta[1];
+
+    const limite = comeu ? corpo.length : corpo.length - 1;
+    let colisao = false;
+
+    for (let i = 0; i < limite; i++) {
+      if (
+        corpo[i][0] === proxima[0] &&
+        corpo[i][1] === proxima[1]
+      ) {
+        colisao = true;
+        break;
+      }
+    }
+
+    if (colisao) continue;
+
+    const novoCorpo = [
+      [...proxima],
+      ...corpo.map(p => [...p])
+    ];
+
+    if (!comeu) novoCorpo.pop();
+
+    const espaco = medirEspaco(
+      novoCorpo, est.cols, est.linhas
+    );
+
+    const distancia = est.fruta
+      ? Math.abs(proxima[0] - est.fruta[0]) +
+        Math.abs(proxima[1] - est.fruta[1])
+      : 0;
+
+    if (
+      espaco > melhorEspaco ||
+      (espaco === melhorEspaco && distancia < melhorDistancia)
+    ) {
+      melhor = [dx, dy];
+      melhorEspaco = espaco;
+      melhorDistancia = distancia;
+    }
+  }
+
+  if (melhor) return nomeDe(melhor);
+
+  // Sem jogada segura disponível.
+  return nomeDe([1, 0]);
+}
+
 export function decidirIA(modelo, est) {
+  // O vencedor agora procura frutas por caminhos seguros.
+  if (modelo.tipo === "ciclo_hamiltoniano") {
+    return decidirVencedorSeguro(est);
+  }
+
+  // Os outros modelos continuam usando Random Forest.
   const f = features(est);
-  return absolutoDe(preverAcao(modelo, paraRelativo(f, est.dirPasso)), est.dirPasso);
+
+  return absolutoDe(
+    preverAcao(modelo, paraRelativo(f, est.dirPasso)),
+    est.dirPasso
+  );
 }
