@@ -1,22 +1,22 @@
 {
   "aprovado": true,
-  "partidas": 10,
-  "jogadas": 906,
-  "jogadas_treino": 677,
-  "jogadas_validacao": 229,
-  "partidas_validacao": 2,
+  "partidas": 71,
+  "jogadas": 17796,
+  "jogadas_treino": 13783,
+  "jogadas_validacao": 4013,
+  "partidas_validacao": 15,
   "classes": [
     "Direita",
     "Esquerda",
     "Frente"
   ],
   "novo": {
-    "acuracia": 0.5109170305676856,
-    "f1_macro": 0.2672531769305963
+    "acuracia": 0.713929728382756,
+    "f1_macro": 0.48160732284827557
   },
   "atual": {
-    "acuracia": 0.44541484716157204,
-    "f1_macro": 0.28613315676834133
+    "acuracia": 0.6232245203089958,
+    "f1_macro": 0.4012373711893091
   },
   "criterios": {
     "f1_minimo": 0.25,
