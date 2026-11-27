@@ -30,5 +30,37 @@
         "tolerancia_acuracia": 0.03
       }
     }
+  },
+  {
+    "versao": "2",
+    "criado": "2026-11-27T00:29Z",
+    "partidas": 10,
+    "registros": 965,
+    "validacao": {
+      "aprovado": true,
+      "partidas": 10,
+      "jogadas": 906,
+      "jogadas_treino": 677,
+      "jogadas_validacao": 229,
+      "partidas_validacao": 2,
+      "classes": [
+        "Direita",
+        "Esquerda",
+        "Frente"
+      ],
+      "novo": {
+        "acuracia": 0.5109170305676856,
+        "f1_macro": 0.2672531769305963
+      },
+      "atual": {
+        "acuracia": 0.44541484716157204,
+        "f1_macro": 0.28613315676834133
+      },
+      "criterios": {
+        "f1_minimo": 0.25,
+        "tolerancia_f1": 0.02,
+        "tolerancia_acuracia": 0.03
+      }
+    }
   }
 ]
